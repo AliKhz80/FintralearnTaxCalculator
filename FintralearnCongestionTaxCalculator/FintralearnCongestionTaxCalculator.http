@@ -1,0 +1,6 @@
+@FintralearnCongestionTaxCalculator_HostAddress = http://localhost:5184
+
+GET {{FintralearnCongestionTaxCalculator_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
