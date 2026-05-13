@@ -1,5 +1,5 @@
-﻿using Application.Extentions.ErrorLogger;
-using Application.Extentions.ServiceException;
+﻿using Application.Common.Exceptions;
+using Application.Ports.Driven.Logging;
 using FluentValidation;
 using System.Data.Common;
 using System.Net;
@@ -11,9 +11,9 @@ namespace FintralearnCongestionTaxCalculator.Middleware
     {
       
         private readonly RequestDelegate _next;
-        private readonly ILoggerManager _logger;
+        private readonly ILoggerPort _logger;
 
-        public ErrorHandlingMiddleware(RequestDelegate next , ILoggerManager loggerManager)
+        public ErrorHandlingMiddleware(RequestDelegate next , ILoggerPort loggerManager)
         {
             _next = next;
             _logger = loggerManager;
@@ -41,7 +41,7 @@ namespace FintralearnCongestionTaxCalculator.Middleware
                             .Select(exception => exception.PropertyName + ": " + exception.ErrorMessage));
                         context.Response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
                         break;
-                    case LogicException LogicException:
+                    case DomainException LogicException:
                         response.StatusCode = (int)HttpStatusCode.BadRequest;
                         Massage = LogicException.Message;
                         break;

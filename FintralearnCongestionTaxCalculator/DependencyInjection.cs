@@ -1,60 +1,55 @@
-﻿
 using Application.Commands.VehicleTaxCalculator.Handlers;
 using Application.Commands.VehicleTaxCalculator.Validations;
-using Application.Extentions.ErrorLogger;
+using Application.Ports.Driven.Logging;
+using Application.Ports.Driven.Persistence;
+using Application.Services.TaxCalculation;
 using Application.Services.VehicleTaxCalculator;
-using Domain;
-using Domain.BusinessIRepositories;
-using FluentValidation;
-using Infrastructure;
-using Infrastructure.BusinessRepositories;
+using Application.UseCases.CalculateTax;
+using Infrastructure.Adapters.Logging;
+using Infrastructure.Adapters.Persistence;
+using Infrastructure.Adapters.Persistence.EfCore;
 using MediatR.Extensions.FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using System.Reflection;
 
 namespace FintralearnCongestionTaxCalculator
 {
-    public static class  DependencyInjection 
+    /// <summary>
+    /// Dependency Injection wiring for the hexagonal architecture.
+    ///
+    /// This class is the COMPOSITION ROOT — the only place that knows about both
+    /// the Application Core (ports) and Infrastructure (adapters), and wires them
+    /// together. The API project itself is just a driving adapter.
+    /// </summary>
+    public static class DependencyInjection
     {
-        
-
-        public static void AddDependencyInjection (this IServiceCollection serviceCollection , IConfiguration configuration)
+        public static void AddApplicationServices(this IServiceCollection services)
         {
+            // ── Driven Adapters: Logging ─────────────────────────────────────────
+            // ILoggerPort (Application output port)  <──  NLogLoggerAdapter (Infrastructure adapter)
+            services.AddSingleton<ILoggerPort, NLogLoggerAdapter>();
 
-            serviceCollection.AddSingleton<ILoggerManager, LoggerManager>();
-            serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
+            // ── Driven Adapters: Persistence ────────────────────────────────────
+            // IRepository output ports  <──  EF Core adapters
+            services.AddScoped<IVehicleTaxRepository, VehicleTaxEfRepository>();
+            services.AddScoped<IVehicleRepository,    VehicleEfRepository>();
+            services.AddScoped<IPlateRepository,      PlateEfRepository>();
 
-            #region Repositories
+            // IUnitOfWork output port  <──  EF Core UnitOfWork adapter
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            serviceCollection.AddScoped<IVehicleRepository, VehicleRepository>();
-            serviceCollection.AddScoped<IVehicleTaxesRepository, VehicleTaxesRepository>();
-            serviceCollection.AddScoped<IPlateRepository, PlateRepository>();
+            // ── Application Services (domain logic, lives in Application Core) ──
+            services.AddTransient<ITaxCalculationService, TaxCalculationService>();
+            services.AddTransient<IVehicleTaxService, VehicleTaxService>();
 
-            #endregion
+            // ── MediatR (Use Case dispatch — driving port wiring) ────────────────
+            services.AddMediatR(cfg =>
+                cfg.RegisterServicesFromAssembly(typeof(CalculateTaxCommandHandler).Assembly));
 
-            #region FluentValidation 
+            services.AddMediatR(cfg =>
+                cfg.RegisterServicesFromAssembly(typeof(VehicleTaxCalculatorCommandHandler).Assembly));
 
-            serviceCollection.AddFluentValidation([typeof(VehicleTaxCalculatorValidation).Assembly]);
-
-            #endregion
-
-            #region Inject Mediator
-
-            serviceCollection.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(VehicleTaxCalculatorCommandHandler).Assembly));
-
-
-            #endregion
-
-
-
-            #region Services
-
-            serviceCollection.AddTransient<IVehicleTaxService, VehicleTaxService>();
-
-            #endregion
-
-            
-
+            // ── FluentValidation (pipeline behaviour) ───────────────────────────
+            services.AddFluentValidation([typeof(CalculateTaxValidator).Assembly]);
+            services.AddFluentValidation([typeof(VehicleTaxCalculatorValidator).Assembly]);
         }
     }
 }

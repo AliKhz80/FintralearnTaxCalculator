@@ -1,12 +1,5 @@
-﻿using Application.Commands.VehicleTaxCalculator.DTOs;
-using Domain.Enums;
-using Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Enums;
+
 
 namespace Application.Services.VehicleTaxCalculator
 {
@@ -47,7 +40,7 @@ namespace Application.Services.VehicleTaxCalculator
         public bool IsTollFreeVehicle(int VehicleTypeId)
         {
             if (VehicleTypeId == 0) return false;
-            return Enum.IsDefined(typeof(VehicleTypes), VehicleTypeId);
+            return Enum.IsDefined(typeof(VehicleType), VehicleTypeId);
         }
 
         public int GetTollFee(DateTime date, int VehicleTypeId)

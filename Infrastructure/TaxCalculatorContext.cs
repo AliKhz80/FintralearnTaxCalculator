@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
-namespace Domain.Models
+namespace Infrastructure
 {
     public class TaxCalculatorContext : DbContext
     {

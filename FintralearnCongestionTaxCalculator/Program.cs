@@ -1,43 +1,37 @@
-using Domain.Models;
 using FintralearnCongestionTaxCalculator;
 using FintralearnCongestionTaxCalculator.Controllers;
 using FintralearnCongestionTaxCalculator.Middleware;
+using Infrastructure.Adapters.Persistence.EfCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// ── Swagger / OpenAPI ────────────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//Add DbContext
-builder.Services.AddDbContext<TaxCalculatorContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("PayaneBar")));
+// ── EF Core DbContext (infrastructure concern — stays in composition root) ───
+builder.Services.AddDbContext<TaxCalculatorDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("PayaneBar")));
 
-
-//Adding Application Services Dependeny Injection
-builder.Services.AddDependencyInjection(builder.Configuration);
-
+// ── Hexagonal Architecture wiring (ports ↔ adapters) ────────────────────────
+builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 
-
-// Configure the HTTP request pipeline.
+// ── HTTP Pipeline ────────────────────────────────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// Global error handler middleware (driving adapter concern)
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
+// Map all HTTP endpoints for the "VehicleTaxCalculators" driving adapter
 app.MapVehicleTaxCalculatorEndpoints("VehicleTaxCalculators");
-
 
 app.Run();

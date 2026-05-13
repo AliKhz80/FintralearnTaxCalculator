@@ -1,6 +1,6 @@
 ﻿using System.Dynamic;
 
-namespace Application.Common;
+namespace Infrastructure;
 
 public class Paging<T>
 {

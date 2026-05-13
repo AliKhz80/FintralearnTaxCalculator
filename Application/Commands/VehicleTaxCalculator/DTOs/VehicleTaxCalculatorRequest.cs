@@ -1,12 +1,5 @@
-﻿using Application.Extentions.ValidationAttributes;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
+
 
 namespace Application.Commands.VehicleTaxCalculator.DTOs
 {

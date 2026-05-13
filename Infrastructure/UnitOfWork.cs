@@ -1,8 +1,5 @@
-﻿using Domain;
-using Domain.BusinessIRepositories;
-using Domain.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Application.Ports.Driven.Persistence;
+
 
 namespace Infrastructure
 {
@@ -12,18 +9,18 @@ namespace Infrastructure
 
         public UnitOfWork(
             TaxCalculatorContext context,
-            IVehicleTaxesRepository vehicleTaxesRepository,
+            IVehicleTaxRepository vehicleTaxesRepository,
             IVehicleRepository vehicleRepository,
             IPlateRepository plateRepository)
         {
             _context = context;
-            this.vehicleTaxesRepository = vehicleTaxesRepository;
+            this.VehicleTaxRepository = vehicleTaxesRepository;
             VehicleRepository = vehicleRepository;
             PlateRepository = plateRepository;
         }
 
 
-        public IVehicleTaxesRepository vehicleTaxesRepository { get; }
+        public IVehicleTaxRepository VehicleTaxRepository { get; }
 
         public IVehicleRepository VehicleRepository { get; }
 

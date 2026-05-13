@@ -1,9 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <!--
+    Domain has ZERO external dependencies.
+    This enforces the Hexagonal Architecture rule: the innermost core must be
+    completely isolated from frameworks, ORMs, and third-party libraries.
+  -->
 
 </Project>

@@ -1,8 +1,7 @@
 ﻿using Application.Commands.VehicleTaxCalculator.DTOs;
-using Application.Extentions.AutoMapper;
+using Application.Ports.Driven.Persistence;
 using Application.Services.VehicleTaxCalculator;
-using Domain;
-using Domain.Models;
+using Domain.Entities;
 using MediatR;
 
 namespace Application.Commands.VehicleTaxCalculator.Handlers
@@ -28,7 +27,7 @@ namespace Application.Commands.VehicleTaxCalculator.Handlers
                     Massage: $"vehicle {request.VehicleName} with platenumber {request.PlateNumber} is free to go in HoliDates.",
                     ResultCode: 205, TaxAmount: 0);
 
-            if(await unitOfWork.vehicleTaxesRepository.CheckVehicleTaxFullPaymentPerCurrentDay(request.PlateNumber))
+            if(await unitOfWork.VehicleTaxRepository.CheckVehicleTaxFullPaymentPerCurrentDay(request.PlateNumber))
                 return new(
                     Massage: $"vehicle {request.VehicleName} with platenumber {request.PlateNumber} tax's has been paid.",
                     ResultCode: 205, TaxAmount: 0);
@@ -70,7 +69,7 @@ namespace Application.Commands.VehicleTaxCalculator.Handlers
                 ];
 
             vehicleTax.Tax = vehicleTaxService.GetTax(request.VehicleTypeID, dateTimes);
-            await unitOfWork.vehicleTaxesRepository.CreateAsync(vehicleTax);
+            await unitOfWork.VehicleTaxRepository.CreateAsync(vehicleTax);
             #endregion
 
             await unitOfWork.CommitAsync();
